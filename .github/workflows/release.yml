@@ -1,0 +1,50 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+
+# Runs one at a time, so two quick merges can't both claim the same version.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          persist-credentials: false
+
+      - name: Choose version
+        id: version
+        run: scripts/next-version.sh >> "$GITHUB_OUTPUT"
+
+      # The build is versioned and then tested, so the tested bytes are the released bytes.
+      - uses: ./.github/actions/verify
+        if: steps.version.outputs.version != ''
+        with:
+          version: ${{ steps.version.outputs.version }}
+
+      - name: Publish release
+        if: steps.version.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: >
+          gh release create "$VERSION" dist/garage.html
+          --target "$GITHUB_SHA"
+          --title "$VERSION"
+          --generate-notes
