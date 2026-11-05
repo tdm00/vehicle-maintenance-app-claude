@@ -45,6 +45,38 @@ test('a change in one tab reaches another', async ({ page, context }, info) => {
   await expect(second.getByRole('link', { name: /From tab one/ }).first()).toBeVisible();
 });
 
+test('a tab that missed an update does not overwrite it', async ({ page, context }, info) => {
+  await openApp(page, info);
+  await page.getByRole('button', { name: 'Load sample data' }).click();
+  await expect(page.getByRole('heading', { name: 'Vehicles' })).toBeVisible();
+
+  // A frozen tab never receives the storage event.
+  const stale = await context.newPage();
+  await stale.addInitScript(() =>
+    window.addEventListener('storage', (event) => event.stopImmediatePropagation(), true),
+  );
+  await stale.goto(page.url());
+  await expect(stale.getByRole('heading', { name: 'Vehicles' })).toBeVisible();
+
+  await page.goto(`${page.url().split('#')[0]}#/vehicles/sample-ev/service/new`);
+  await page.getByRole('checkbox', { name: 'Brake fluid' }).check();
+  await page.getByRole('button', { name: 'Save service' }).click();
+  await expect(page.getByText('Total spent:')).toBeVisible();
+
+  await stale
+    .getByRole('link', { name: /Commuter/ })
+    .last()
+    .click();
+  await stale.getByRole('link', { name: 'Edit', exact: true }).click();
+  await stale.getByRole('button', { name: 'Save changes' }).click();
+  await expect(stale.getByRole('button', { name: 'Delete' })).toBeVisible();
+
+  const records = await stale.evaluate(
+    () => JSON.parse(localStorage.getItem('garage.data') ?? '').data.serviceRecords.length,
+  );
+  expect(records).toBe(6);
+});
+
 test('the app makes no network requests and enforces that', async ({ page }, info) => {
   const appUrl: string = info.project.metadata.appUrl;
   const external: string[] = [];

@@ -24,9 +24,12 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
           <button
             type="button"
             className="min-h-11 rounded-xl bg-brand-700 px-4 py-2 text-sm font-semibold text-white"
-            onClick={() =>
-              downloadText('garage-recovery.json', serialize(garageStore.getState().data))
-            }
+            onClick={() => {
+              const { status, data, rawSaved } = garageStore.getState();
+              // Outside `ready`, the store holds an empty placeholder, not the user's data.
+              const text = status === 'ready' ? serialize(data) : (rawSaved() ?? '');
+              downloadText('garage-recovery.json', text);
+            }}
           >
             Download my data
           </button>

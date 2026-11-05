@@ -2,7 +2,9 @@ import { type FormEvent, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'wouter';
 import {
   type FieldErrors,
-  focusFirstError,
+  FUTURE_DATE_ERROR,
+  mileageHint,
+  reportErrors,
   toFieldErrors,
   toNumber,
 } from '../components/formErrors';
@@ -18,7 +20,7 @@ import {
 import { vehicleName } from '../components/VehicleCard';
 import { toLocalIso } from '../domain/dates';
 import { centsToInput, parseDollars } from '../domain/money';
-import { currentOdometer, isBelowKnownOdometer } from '../domain/odometer';
+import { currentOdometer } from '../domain/odometer';
 import { serviceRecordSchema, type Vehicle } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
@@ -52,12 +54,18 @@ function ServiceForm({
   const existing = data.serviceRecords.find((entry) => entry.id === recordId);
   const known = currentOdometer(vehicle, data.serviceRecords, data.fuelFillUps);
 
-  const [date, setDate] = useState(existing?.date ?? toLocalIso(new Date()));
+  const today = toLocalIso(new Date());
+  const offered = data.serviceTypes.filter(
+    (type) => !type.isHidden && type.powertrains.includes(vehicle.powertrain),
+  );
+
+  const [date, setDate] = useState(existing?.date ?? today);
   const [odometer, setOdometer] = useState(
     existing ? String(existing.odometer ?? '') : String(known),
   );
+  const [mileageTyped, setMileageTyped] = useState(false);
   const [selected, setSelected] = useState<string[]>(
-    existing?.serviceTypeIds ?? (typeId ? [typeId] : []),
+    existing?.serviceTypeIds ?? offered.filter((type) => type.id === typeId).map((type) => type.id),
   );
   const [cost, setCost] = useState(
     existing?.costCents !== undefined ? centsToInput(existing.costCents) : '',
@@ -68,10 +76,14 @@ function ServiceForm({
 
   const backHref = `/vehicles/${vehicle.id}${existing ? '/service' : ''}`;
   const options = data.serviceTypes.filter(
-    (type) =>
-      selected.includes(type.id) ||
-      (!type.isHidden && type.powertrains.includes(vehicle.powertrain)),
+    (type) => selected.includes(type.id) || offered.includes(type),
   );
+
+  function changeDate(value: string) {
+    setDate(value);
+    // Today's mileage is wrong for older work, so don't let the prefill stand in for it.
+    if (!existing && !mileageTyped) setOdometer(value === today ? String(known) : '');
+  }
 
   function toggle(id: string, checked: boolean) {
     setSelected((current) =>
@@ -91,18 +103,18 @@ function ServiceForm({
       costCents: costCents ?? undefined,
       notes,
     });
-    const fieldErrors = parsed.success ? {} : toFieldErrors(parsed.error);
+    const fieldErrors: FieldErrors = parsed.success ? {} : toFieldErrors(parsed.error);
     if (costCents === null) fieldErrors.costCents = 'Enter an amount, such as 45.50';
-    if (!parsed.success || costCents === null) {
-      setErrors(fieldErrors);
-      focusFirstError(form.current);
+    if (date > today) fieldErrors.date = FUTURE_DATE_ERROR;
+    if (!parsed.success || Object.keys(fieldErrors).length > 0) {
+      reportErrors(form.current, setErrors, fieldErrors);
       return;
     }
     saveServiceRecord({ ...parsed.data, id: recordId });
     navigate(`/vehicles/${vehicle.id}/service`);
   }
 
-  const belowKnown = !existing && isBelowKnownOdometer(toNumber(odometer), known);
+  const defaultHint = 'Without a mileage, reminders use the date only.';
 
   return (
     <div className="mx-auto max-w-xl">
@@ -117,20 +129,20 @@ function ServiceForm({
             label="Date"
             type="date"
             value={date}
-            onChange={(event) => setDate(event.target.value)}
+            max={today}
+            onChange={(event) => changeDate(event.target.value)}
             error={errors.date}
           />
           <TextField
             label="Mileage (optional)"
             inputMode="numeric"
             value={odometer}
-            onChange={(event) => setOdometer(event.target.value)}
+            onChange={(event) => {
+              setMileageTyped(true);
+              setOdometer(event.target.value);
+            }}
             error={errors.odometer}
-            hint={
-              belowKnown
-                ? `This is below the current ${known.toLocaleString('en-US')} mi. That's fine for older work.`
-                : 'Without a mileage, reminders use the date only.'
-            }
+            hint={existing ? defaultHint : mileageHint(toNumber(odometer), known, defaultHint)}
           />
           <fieldset>
             <legend className="mb-1 text-sm font-medium text-slate-800">Services performed</legend>

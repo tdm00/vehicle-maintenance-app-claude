@@ -43,6 +43,7 @@ export interface GarageState {
   markBackedUp(date: string): void;
   discardSaved(): void;
   rawSaved(): string | null;
+  quarantined(): string[];
 }
 
 function upsert<T extends { id: string }>(items: T[], item: New<T> & { id?: string }): T[] {
@@ -70,15 +71,28 @@ function initialState(storage: GarageStorage) {
 
 export function createGarageStore(storage: GarageStorage): StoreApi<GarageState> {
   return createStore<GarageState>((set, get) => {
+    /**
+     * Applies a change on top of what's saved now, not this tab's copy, which is stale if it
+     * missed another tab's update. A save only happens over data that was read successfully.
+     */
     function commit(change: (data: GarageData) => GarageData) {
-      const { status, warning } = get();
-      if (status !== 'ready') return;
-      const data = change(get().data);
-      const saved = storage.save(data);
-      set({
-        data,
-        warning: saved ? null : warning === 'unavailable' ? 'unavailable' : 'writeFailed',
-      });
+      if (get().status !== 'ready') return;
+      const { data: current, warning } = get();
+
+      const latest = storage.load();
+      if (latest.kind === 'corrupt' || latest.kind === 'newer') {
+        set(initialState(storage));
+        return;
+      }
+      if (latest.kind === 'unavailable') {
+        set({ data: change(current), warning: 'unavailable' });
+        return;
+      }
+
+      // A failed save leaves this tab ahead of storage, so keep its copy to retry.
+      const base = latest.kind === 'ok' && warning !== 'writeFailed' ? latest.data : current;
+      const data = change(base);
+      set({ data, warning: storage.save(data) ? null : 'writeFailed' });
     }
 
     return {
@@ -177,6 +191,7 @@ export function createGarageStore(storage: GarageStorage): StoreApi<GarageState>
       },
 
       rawSaved: () => storage.raw(),
+      quarantined: () => storage.quarantined(),
     };
   });
 }

@@ -1,11 +1,6 @@
 import { type FormEvent, useRef, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
-import {
-  type FieldErrors,
-  focusFirstError,
-  toFieldErrors,
-  toNumber,
-} from '../components/formErrors';
+import { type FieldErrors, reportErrors, toFieldErrors, toNumber } from '../components/formErrors';
 import { BackLink, Button, Card, PageTitle, TextField } from '../components/ui';
 import { POWERTRAINS, serviceTypeSchema } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
@@ -49,8 +44,7 @@ function ServiceTypeForm({ id }: { id?: string }) {
       intervalsEdited: (existing?.intervalsEdited ?? false) || changedInterval,
     });
     if (!parsed.success) {
-      setErrors(toFieldErrors(parsed.error));
-      focusFirstError(form.current);
+      reportErrors(form.current, setErrors, toFieldErrors(parsed.error));
       return;
     }
     saveServiceType({ ...parsed.data, id });

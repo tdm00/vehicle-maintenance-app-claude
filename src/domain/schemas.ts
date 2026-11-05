@@ -22,8 +22,13 @@ export const BODY_TYPES = [
 ] as const;
 
 const id = z.string().min(1).max(64);
+/** Separates a field left empty from one holding something that isn't a number. */
+const numberError = (blank: string, invalid: string) => ({
+  error: (issue: { input?: unknown }) => (issue.input === undefined ? blank : invalid),
+});
+
 const odometer = z
-  .number('Enter the mileage')
+  .number(numberError('Enter the mileage', 'Use numbers only, such as 45000'))
   .int('Use whole miles')
   .min(0, 'Mileage cannot be negative')
   .max(2_000_000, 'That mileage looks too high');
@@ -63,12 +68,16 @@ export const fuelFillUpSchema = z.object({
   vehicleId: id,
   date: isoDate,
   odometer,
-  gallons: z.number('Enter the gallons').gt(0, 'Gallons must be above zero').max(1000),
+  gallons: z
+    .number(numberError('Enter the gallons', 'Use numbers only, such as 12.5'))
+    .gt(0, 'Gallons must be above zero')
+    .max(1000),
   costCents: cents,
   isFull: z.boolean().default(true),
 });
 
-const interval = z.number().int().positive().nullable();
+const INTERVAL_ERROR = 'Use a whole number, such as 5000';
+const interval = z.number(INTERVAL_ERROR).int(INTERVAL_ERROR).positive(INTERVAL_ERROR).nullable();
 
 export const serviceTypeSchema = z.object({
   id,
