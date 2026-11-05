@@ -35,21 +35,19 @@ export function MaintenanceTab({ vehicle }: { vehicle: Vehicle }) {
                 </div>
                 <p className="text-sm text-slate-600">{describeItem(item)}</p>
               </div>
-              <div className="flex shrink-0 flex-col items-end sm:flex-row sm:gap-2">
+              <div className="flex shrink-0 items-center">
                 <Link
                   href={`/vehicles/${vehicle.id}/service/new/${item.serviceType.id}`}
-                  aria-label={`Log ${item.serviceType.name}`}
                   className="flex min-h-11 items-center px-2 text-sm font-semibold text-brand-700 hover:text-brand-800"
                 >
-                  Log it
+                  Log it<span className="sr-only">: {item.serviceType.name}</span>
                 </Link>
                 <button
                   type="button"
-                  aria-label={`${item.serviceType.name} does not apply`}
                   onClick={() => setServiceIgnored(vehicle.id, item.serviceType.id, true)}
                   className="flex min-h-11 items-center px-2 text-sm text-slate-600 hover:text-slate-900"
                 >
-                  N/A
+                  N/A<span className="sr-only">: {item.serviceType.name}</span>
                 </button>
               </div>
             </li>
@@ -65,12 +63,8 @@ export function MaintenanceTab({ vehicle }: { vehicle: Vehicle }) {
           </h2>
           <div className="flex flex-wrap gap-2">
             {ignored.map((type) => (
-              <Button
-                key={type.id}
-                aria-label={`Restore ${type.name}`}
-                onClick={() => setServiceIgnored(vehicle.id, type.id, false)}
-              >
-                {type.name} <span aria-hidden="true">↺</span>
+              <Button key={type.id} onClick={() => setServiceIgnored(vehicle.id, type.id, false)}>
+                Restore {type.name}
               </Button>
             ))}
           </div>

@@ -28,10 +28,12 @@ function TaskRow({ item }: { item: MaintenanceItem }) {
       </div>
       <Link
         href={logLink(item)}
-        aria-label={`Log ${item.serviceType.name} for ${item.vehicle.description}`}
         className="flex min-h-11 shrink-0 items-center px-2 text-sm font-semibold text-brand-700 hover:text-brand-800"
       >
         Log it
+        <span className="sr-only">
+          : {item.serviceType.name} for {item.vehicle.description}
+        </span>
       </Link>
     </li>
   );
@@ -58,8 +60,11 @@ export function TaskList({ tasks }: { tasks: Tasks }) {
           </p>
         )}
         {noRecord.map(({ vehicle, items }) => (
-          <details key={vehicle.id} className="border-t border-slate-200">
-            <summary className="flex min-h-11 cursor-pointer items-center px-4 py-2 text-sm font-medium text-slate-700">
+          <details key={vehicle.id} className="group border-t border-slate-200">
+            <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700">
+              <span aria-hidden="true" className="transition-transform group-open:rotate-90">
+                ›
+              </span>
               {vehicle.description}: {items.length} with no service on record
             </summary>
             <ul className="divide-y divide-slate-200 border-t border-slate-200">

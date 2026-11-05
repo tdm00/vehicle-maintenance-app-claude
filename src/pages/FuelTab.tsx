@@ -10,9 +10,17 @@ export function formatMpg(mpg: number) {
   return mpg.toFixed(1);
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  className = '',
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <Card className="px-4 py-3">
+    <Card className={`px-4 py-3 ${className}`}>
       <dt className="text-xs font-medium text-slate-600">{label}</dt>
       <dd className="text-xl font-bold tracking-tight">{value}</dd>
     </Card>
@@ -43,12 +51,11 @@ export function FuelTab({ vehicle }: { vehicle: Vehicle }) {
   return (
     <>
       <dl className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="col-span-2 sm:col-span-1">
-          <Stat
-            label="Overall MPG"
-            value={stats.overallMpg !== null ? formatMpg(stats.overallMpg) : 'Not enough data'}
-          />
-        </div>
+        <Stat
+          className="col-span-2 sm:col-span-1"
+          label="Overall MPG"
+          value={stats.overallMpg !== null ? formatMpg(stats.overallMpg) : 'Not enough data'}
+        />
         <Stat label="Total spent" value={formatCents(stats.totalCostCents)} />
         <Stat label="Total gallons" value={stats.totalGallons.toFixed(1)} />
       </dl>

@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
+import { StorageBanner } from './StorageBanner';
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
@@ -42,6 +43,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
+      <StorageBanner />
       <main ref={main} tabIndex={-1} className="mx-auto max-w-5xl px-4 py-6 sm:py-8">
         {children}
       </main>
