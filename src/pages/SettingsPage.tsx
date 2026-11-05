@@ -1,13 +1,15 @@
 import { Link } from 'wouter';
 import { BackupSection } from '../components/BackupSection';
+import { intervalText } from '../components/maintenanceText';
 import { Card, LinkButton, PageTitle } from '../components/ui';
+import type { ServiceType } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 
-function intervalText(miles: number | null, months: number | null) {
-  const parts: string[] = [];
-  if (miles !== null) parts.push(`${miles.toLocaleString('en-US')} mi`);
-  if (months !== null) parts.push(`${months} mo`);
-  return parts.length > 0 ? `Every ${parts.join(' or ')}` : 'No reminder';
+function serviceSummary(type: ServiceType) {
+  if (type.isHidden) return 'Hidden';
+  const text = intervalText({ miles: type.intervalMiles, months: type.intervalMonths });
+  const isDefault = !type.isCustom && !type.intervalsEdited && text !== 'No reminder';
+  return isDefault ? `Default: ${text.toLowerCase()}` : text;
 }
 
 export function SettingsPage() {
@@ -24,7 +26,8 @@ export function SettingsPage() {
               Service list
             </h2>
             <p className="text-sm text-slate-600">
-              The services you can log. Edit one to set your own reminder interval.
+              The services you can log. Defaults are adjusted for each vehicle's age, powertrain,
+              and mileage. Edit one to set your own interval for every vehicle.
             </p>
           </div>
           <LinkButton href="/settings/services/new" variant="primary">
@@ -42,11 +45,7 @@ export function SettingsPage() {
                   <span className={type.isHidden ? 'text-slate-600 line-through' : 'font-medium'}>
                     {type.name}
                   </span>
-                  <span className="text-right text-sm text-slate-600">
-                    {type.isHidden
-                      ? 'Hidden'
-                      : intervalText(type.intervalMiles, type.intervalMonths)}
-                  </span>
+                  <span className="text-right text-sm text-slate-600">{serviceSummary(type)}</span>
                 </Link>
               </li>
             ))}

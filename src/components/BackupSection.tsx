@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { formatDate, toLocalIso } from '../domain/dates';
 import type { GarageData } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
-import { MAX_IMPORT_BYTES, parseImport, serialize } from '../store/storage';
+import { readImport, serialize } from '../store/storage';
 import { downloadText } from './download';
 import { Button, Card, ConfirmDialog } from './ui';
 
@@ -13,7 +13,9 @@ export function BackupSection() {
   const replaceData = useGarage((state) => state.replaceData);
   const markBackedUp = useGarage((state) => state.markBackedUp);
   const quarantined = useGarage((state) => state.quarantined);
+  const deleteAll = useGarage((state) => state.deleteAll);
   const [pending, setPending] = useState<GarageData | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const damaged = quarantined();
@@ -31,15 +33,11 @@ export function BackupSection() {
     if (!file) return;
     setError(null);
 
-    if (file.size > MAX_IMPORT_BYTES) {
-      setError('The file is larger than the 5 MB limit. Nothing was changed.');
-    } else {
-      const result = parseImport(await file.text());
-      if (result.kind === 'ok') setPending(result.data);
-      else if (result.kind === 'newer') {
-        setError('This backup is from a newer version. Open the latest release to restore it.');
-      } else setError(`${result.reason} Nothing was changed.`);
-    }
+    const result = await readImport(file);
+    if (result.kind === 'ok') setPending(result.data);
+    else if (result.kind === 'newer') {
+      setError('This backup is from a newer version. Open the latest release to restore it.');
+    } else setError(`${result.reason} Nothing was changed.`);
     input.value = '';
   }
 
@@ -79,6 +77,11 @@ export function BackupSection() {
             {error}
           </p>
         )}
+        <div className="mt-4 border-t border-slate-200 pt-3">
+          <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
+            Delete all data
+          </Button>
+        </div>
         {damaged.length > 0 && (
           <div className="mt-4 border-t border-slate-200 pt-3">
             <p className="text-sm text-slate-700">
@@ -97,6 +100,21 @@ export function BackupSection() {
           </div>
         )}
       </Card>
+      {confirmingDelete && (
+        <ConfirmDialog
+          title="Delete all data?"
+          confirmLabel="Delete everything"
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => {
+            deleteAll();
+            setConfirmingDelete(false);
+            navigate('/');
+          }}
+        >
+          This permanently removes every vehicle and record from this browser, including insurance
+          policy numbers and any damaged copies. Backup files you've saved aren't affected.
+        </ConfirmDialog>
+      )}
       {pending && (
         <ConfirmDialog
           title="Replace all data?"

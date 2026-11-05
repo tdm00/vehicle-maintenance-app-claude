@@ -1,5 +1,5 @@
 import { Link } from 'wouter';
-import { describeItem } from '../components/maintenanceText';
+import { describeItem, intervalText } from '../components/maintenanceText';
 import { StatusBadge } from '../components/StatusBadge';
 import { GUIDANCE_NOTE } from '../components/TaskList';
 import { Button, Card, LinkButton } from '../components/ui';
@@ -34,6 +34,7 @@ export function MaintenanceTab({ vehicle }: { vehicle: Vehicle }) {
                   <StatusBadge status={item.status} />
                 </div>
                 <p className="text-sm text-slate-600">{describeItem(item)}</p>
+                <p className="text-xs text-slate-600">{intervalText(item.interval)}</p>
               </div>
               <div className="flex shrink-0 items-center">
                 <Link

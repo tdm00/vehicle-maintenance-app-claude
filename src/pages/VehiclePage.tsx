@@ -49,7 +49,7 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
           />
         </div>
         <div className="min-w-0 flex-1 p-5">
-          <h1 className="text-2xl font-bold tracking-tight break-words">{vehicle.description}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{vehicle.description}</h1>
           <p className="text-slate-600">{vehicleName(vehicle)}</p>
           <p className="mt-1 text-sm text-slate-600">
             {BODY_TYPE_LABELS[vehicle.bodyType]} · {POWERTRAIN_LABELS[vehicle.powertrain]}

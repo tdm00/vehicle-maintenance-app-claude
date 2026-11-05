@@ -196,11 +196,12 @@ export function ConfirmDialog({
   const titleId = useId();
 
   useEffect(() => {
-    const dialog = ref.current;
-    if (dialog && !dialog.open) {
-      if (typeof dialog.showModal === 'function') dialog.showModal();
-      else dialog.setAttribute('open', '');
-    }
+    const opener = document.activeElement;
+    ref.current?.showModal();
+    // Removing an open dialog drops focus to the page, so hand it back to what opened it.
+    return () => {
+      if (opener instanceof HTMLElement) opener.focus();
+    };
   }, []);
 
   return (

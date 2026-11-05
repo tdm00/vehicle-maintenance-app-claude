@@ -13,7 +13,7 @@ import { vehicleName } from '../components/VehicleCard';
 import { toLocalIso } from '../domain/dates';
 import { centsToInput, parseDollars } from '../domain/money';
 import { currentOdometer } from '../domain/odometer';
-import { fuelFillUpSchema, type Vehicle } from '../domain/schemas';
+import { type FuelFillUp, fuelFillUpSchema, type Vehicle } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -23,17 +23,17 @@ export function FuelFormPage() {
   const vehicle = data.vehicles.find((entry) => entry.id === id);
   const fillUp = data.fuelFillUps.find((entry) => entry.id === fillUpId);
   if (!vehicle || (fillUpId && !fillUp)) return <NotFoundPage />;
-  return <FuelForm key={fillUpId ?? 'new'} vehicle={vehicle} fillUpId={fillUpId} />;
+  return <FuelForm key={fillUpId ?? 'new'} vehicle={vehicle} existing={fillUp} />;
 }
 
-function FuelForm({ vehicle, fillUpId }: { vehicle: Vehicle; fillUpId?: string }) {
+function FuelForm({ vehicle, existing }: { vehicle: Vehicle; existing?: FuelFillUp }) {
   const [, navigate] = useLocation();
   const data = useGarage((state) => state.data);
   const saveFuelFillUp = useGarage((state) => state.saveFuelFillUp);
   const deleteFuelFillUp = useGarage((state) => state.deleteFuelFillUp);
   const form = useRef<HTMLFormElement>(null);
 
-  const existing = data.fuelFillUps.find((entry) => entry.id === fillUpId);
+  const fillUpId = existing?.id;
   const known = currentOdometer(vehicle, data.serviceRecords, data.fuelFillUps);
   const listHref = `/vehicles/${vehicle.id}/fuel`;
 

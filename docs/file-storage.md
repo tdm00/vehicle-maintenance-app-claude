@@ -18,5 +18,7 @@ install may apply, so treat this table as a guide and not a guarantee.
 
 - A newly downloaded release should keep its data, wherever it is saved.
 - All local files may share one storage area, so the app uses a namespaced key.
+- That sharing is also a privacy limit. A different local HTML file read a saved policy number in
+  testing, so any local file opened in the same browser can read this app's data.
 - Do not rely on this across browsers or devices. JSON export/import is the supported way to move
   data.

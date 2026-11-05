@@ -21,7 +21,7 @@ export function PolicyCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h2 className="font-semibold break-words">{policy.company}</h2>
+            <h2 className="font-semibold">{policy.company}</h2>
             <PolicyBadge status={status} />
           </div>
           <p className="text-sm text-slate-600">{vehicleNames(policy, vehicles)}</p>

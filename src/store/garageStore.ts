@@ -42,6 +42,7 @@ export interface GarageState {
   replaceData(data: GarageData): void;
   markBackedUp(date: string): void;
   discardSaved(): void;
+  deleteAll(): void;
   rawSaved(): string | null;
   quarantined(): string[];
 }
@@ -187,6 +188,11 @@ export function createGarageStore(storage: GarageStorage): StoreApi<GarageState>
 
       discardSaved() {
         if (!storage.discard()) return;
+        set({ data: emptyGarage(), status: 'ready', warning: null });
+      },
+
+      deleteAll() {
+        if (!storage.deleteAll()) return;
         set({ data: emptyGarage(), status: 'ready', warning: null });
       },
 

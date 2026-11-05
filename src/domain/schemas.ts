@@ -38,7 +38,7 @@ const cents = z
   .min(0, 'Cost cannot be negative')
   .max(100_000_000, 'That amount looks too high');
 
-export const MIN_YEAR = 1950;
+export const MIN_YEAR = 1900;
 
 export const vehicleSchema = z.object({
   id,

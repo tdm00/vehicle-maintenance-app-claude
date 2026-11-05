@@ -21,7 +21,7 @@ import { vehicleName } from '../components/VehicleCard';
 import { toLocalIso } from '../domain/dates';
 import { centsToInput, parseDollars } from '../domain/money';
 import { currentOdometer } from '../domain/odometer';
-import { serviceRecordSchema, type Vehicle } from '../domain/schemas';
+import { type ServiceRecord, serviceRecordSchema, type Vehicle } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -32,17 +32,17 @@ export function ServiceFormPage() {
   const record = data.serviceRecords.find((entry) => entry.id === recordId);
   if (!vehicle || (recordId && !record)) return <NotFoundPage />;
   return (
-    <ServiceForm key={recordId ?? 'new'} vehicle={vehicle} recordId={recordId} typeId={typeId} />
+    <ServiceForm key={recordId ?? 'new'} vehicle={vehicle} existing={record} typeId={typeId} />
   );
 }
 
 function ServiceForm({
   vehicle,
-  recordId,
+  existing,
   typeId,
 }: {
   vehicle: Vehicle;
-  recordId?: string;
+  existing?: ServiceRecord;
   typeId?: string;
 }) {
   const [, navigate] = useLocation();
@@ -51,7 +51,7 @@ function ServiceForm({
   const deleteServiceRecord = useGarage((state) => state.deleteServiceRecord);
   const form = useRef<HTMLFormElement>(null);
 
-  const existing = data.serviceRecords.find((entry) => entry.id === recordId);
+  const recordId = existing?.id;
   const known = currentOdometer(vehicle, data.serviceRecords, data.fuelFillUps);
 
   const today = toLocalIso(new Date());

@@ -7,15 +7,18 @@ export function Layout({ children }: { children: ReactNode }) {
   const main = useRef<HTMLElement>(null);
   const firstRender = useRef(true);
 
-  // A hash route change is silent to screen readers, so move focus to the new content.
+  // A hash route change is silent to screen readers, so name the page and move focus to it.
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs on each location change.
   useEffect(() => {
+    const heading = main.current?.querySelector('h1')?.textContent;
+    document.title = heading ? `${heading} – Garage` : 'Garage';
+
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
     main.current?.focus();
-    window.scrollTo?.(0, 0);
+    window.scrollTo(0, 0);
   }, [location]);
 
   return (

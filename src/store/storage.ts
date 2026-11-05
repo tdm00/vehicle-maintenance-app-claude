@@ -110,15 +110,20 @@ function reconcileImport(data: GarageData): GarageData | null {
 }
 
 export function parseImport(text: string): ParseResult {
-  if (new Blob([text]).size > MAX_IMPORT_BYTES) {
-    return { kind: 'corrupt', reason: 'The file is larger than the 5 MB limit.' };
-  }
   const result = parseSaved(text);
   if (result.kind !== 'ok') return result;
   const data = reconcileImport(result.data);
   return data
     ? { kind: 'ok', data }
     : { kind: 'corrupt', reason: 'The file has duplicate or orphaned entries.' };
+}
+
+/** Reads a chosen backup file, refusing an oversized one before loading it into memory. */
+export async function readImport(file: File): Promise<ParseResult> {
+  if (file.size > MAX_IMPORT_BYTES) {
+    return { kind: 'corrupt', reason: 'The file is larger than the 5 MB limit.' };
+  }
+  return parseImport(await file.text());
 }
 
 /** Returns usable localStorage, or null when the browser blocks it. */
@@ -142,6 +147,8 @@ export interface GarageStorage {
   discard(): boolean;
   /** Damaged saves kept for recovery, newest first. */
   quarantined(): string[];
+  /** Removes everything this app has stored, including quarantined copies. */
+  deleteAll(): boolean;
 }
 
 function readQuarantine(backing: StorageBacking | null): string[] {
@@ -197,6 +204,14 @@ export function createStorage(backing: StorageBacking | null): GarageStorage {
       }
     },
     quarantined: () => readQuarantine(backing),
+    deleteAll() {
+      try {
+        for (const key of [STORAGE_KEY, ...QUARANTINE_KEYS]) backing?.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    },
     discard() {
       try {
         backing?.removeItem(STORAGE_KEY);

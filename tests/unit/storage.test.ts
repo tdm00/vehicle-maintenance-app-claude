@@ -3,7 +3,6 @@ import {
   browserBacking,
   createStorage,
   emptyGarage,
-  MAX_IMPORT_BYTES,
   parseImport,
   parseSaved,
   QUARANTINE_KEY,
@@ -111,11 +110,6 @@ describe('upgrading from version 1', () => {
 test('data with policies is refused by version 1, instead of having them stripped', () => {
   const saved = serialize({ ...emptyGarage(), insurancePolicies: [policy()] });
   expect(parseSaved(saved, 1, {})).toEqual({ kind: 'newer', version: SCHEMA_VERSION });
-});
-
-test('parseImport rejects oversized files', () => {
-  const result = parseImport(`"${'x'.repeat(MAX_IMPORT_BYTES)}"`);
-  expect(result).toEqual({ kind: 'corrupt', reason: 'The file is larger than the 5 MB limit.' });
 });
 
 describe('createStorage', () => {

@@ -7,5 +7,8 @@ afterEach(() => {
   localStorage.clear();
 });
 
-// jsdom does not implement scrolling.
+// jsdom does not implement scrolling or modal dialogs.
 window.scrollTo = () => {};
+HTMLDialogElement.prototype.showModal = function showModal() {
+  this.setAttribute('open', '');
+};

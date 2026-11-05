@@ -12,7 +12,7 @@ import {
   TextAreaField,
   TextField,
 } from '../components/ui';
-import { insurancePolicySchema } from '../domain/schemas';
+import { type InsurancePolicy, insurancePolicySchema } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -20,7 +20,8 @@ export function InsuranceFormPage() {
   const { id, vehicleId } = useParams<{ id?: string; vehicleId?: string }>();
   const data = useGarage((state) => state.data);
 
-  if (id && !data.insurancePolicies.some((policy) => policy.id === id)) return <NotFoundPage />;
+  const existing = data.insurancePolicies.find((policy) => policy.id === id);
+  if (id && !existing) return <NotFoundPage />;
   if (!id && data.vehicles.length === 0) {
     return (
       <EmptyState
@@ -35,15 +36,19 @@ export function InsuranceFormPage() {
       </EmptyState>
     );
   }
-  return <InsuranceForm key={id ?? 'new'} id={id} vehicleId={vehicleId} />;
+  return <InsuranceForm key={id ?? 'new'} existing={existing} vehicleId={vehicleId} />;
 }
 
-function InsuranceForm({ id, vehicleId }: { id?: string; vehicleId?: string }) {
+function InsuranceForm({
+  existing,
+  vehicleId,
+}: {
+  existing?: InsurancePolicy;
+  vehicleId?: string;
+}) {
   const [, navigate] = useLocation();
   const vehicles = useGarage((state) => state.data.vehicles);
-  const existing = useGarage((state) =>
-    state.data.insurancePolicies.find((policy) => policy.id === id),
-  );
+  const id = existing?.id;
   const saveInsurancePolicy = useGarage((state) => state.saveInsurancePolicy);
   const deleteInsurancePolicy = useGarage((state) => state.deleteInsurancePolicy);
   const form = useRef<HTMLFormElement>(null);
@@ -111,6 +116,7 @@ function InsuranceForm({ id, vehicleId }: { id?: string; vehicleId?: string }) {
             onChange={(event) => setPolicyNumber(event.target.value)}
             error={errors.policyNumber}
             hint="Stored unencrypted in this browser and in backup files."
+            autoComplete="off"
             maxLength={60}
           />
           <TextField
