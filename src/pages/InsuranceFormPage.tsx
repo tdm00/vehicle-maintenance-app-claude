@@ -1,6 +1,6 @@
 import { type FormEvent, useRef, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
-import { type FieldErrors, focusFirstError, toFieldErrors } from '../components/formErrors';
+import { type FieldErrors, reportErrors, toFieldErrors } from '../components/formErrors';
 import {
   BackLink,
   Button,
@@ -53,13 +53,14 @@ function InsuranceForm({ id, vehicleId }: { id?: string; vehicleId?: string }) {
   const [expirationDate, setExpirationDate] = useState(existing?.expirationDate ?? '');
   const [phone, setPhone] = useState(existing?.phone ?? '');
   const [notes, setNotes] = useState(existing?.notes ?? '');
+  const chosen = vehicles.find((vehicle) => vehicle.id === vehicleId);
   const [selected, setSelected] = useState<string[]>(
-    existing?.vehicleIds ?? (vehicleId ? [vehicleId] : []),
+    existing?.vehicleIds ?? (chosen ? [chosen.id] : []),
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [confirming, setConfirming] = useState(false);
 
-  const backHref = vehicleId ? `/vehicles/${vehicleId}/insurance` : '/insurance';
+  const backHref = chosen ? `/vehicles/${chosen.id}/insurance` : '/insurance';
 
   function toggle(entry: string, checked: boolean) {
     setSelected((current) =>
@@ -84,8 +85,7 @@ function InsuranceForm({ id, vehicleId }: { id?: string; vehicleId?: string }) {
       fieldErrors.vehicleIds = 'Choose at least one vehicle';
     }
     if (!parsed.success || fieldErrors.vehicleIds) {
-      setErrors(fieldErrors);
-      focusFirstError(form.current);
+      reportErrors(form.current, setErrors, fieldErrors);
       return;
     }
     saveInsurancePolicy({ ...parsed.data, id });

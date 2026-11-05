@@ -12,8 +12,11 @@ export function BackupSection() {
   const data = useGarage((state) => state.data);
   const replaceData = useGarage((state) => state.replaceData);
   const markBackedUp = useGarage((state) => state.markBackedUp);
+  const quarantined = useGarage((state) => state.quarantined);
   const [pending, setPending] = useState<GarageData | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const damaged = quarantined();
 
   function backup() {
     const today = toLocalIso(new Date());
@@ -76,6 +79,23 @@ export function BackupSection() {
             {error}
           </p>
         )}
+        {damaged.length > 0 && (
+          <div className="mt-4 border-t border-slate-200 pt-3">
+            <p className="text-sm text-slate-700">
+              Saved data that couldn't be read was kept here, in case it can be repaired.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-3">
+              {damaged.map((text, index) => (
+                <Button
+                  key={text}
+                  onClick={() => downloadText(`garage-damaged-${index + 1}.json`, text)}
+                >
+                  Download damaged copy {index + 1}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </Card>
       {pending && (
         <ConfirmDialog
@@ -88,8 +108,13 @@ export function BackupSection() {
             navigate('/');
           }}
         >
-          This backup has {pending.vehicles.length} vehicle(s). Everything currently in this browser
-          will be replaced.
+          <p>
+            This backup has {pending.vehicles.length} vehicle(s). Everything currently in this
+            browser will be replaced.
+          </p>
+          <Button className="mt-3" onClick={backup}>
+            Download current data first
+          </Button>
         </ConfirmDialog>
       )}
     </section>

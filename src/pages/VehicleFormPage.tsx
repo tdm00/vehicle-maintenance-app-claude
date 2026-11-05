@@ -1,11 +1,6 @@
 import { type FormEvent, useRef, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
-import {
-  type FieldErrors,
-  focusFirstError,
-  toFieldErrors,
-  toNumber,
-} from '../components/formErrors';
+import { type FieldErrors, reportErrors, toFieldErrors, toNumber } from '../components/formErrors';
 import { BackLink, Button, Card, PageTitle, SelectField, TextField } from '../components/ui';
 import { VehicleGraphic } from '../components/VehicleGraphic';
 import {
@@ -17,6 +12,8 @@ import {
   POWERTRAIN_LABELS,
   powertrainFor,
 } from '../data/vehicles';
+import { formatDate } from '../domain/dates';
+import { highestLoggedReading } from '../domain/odometer';
 import {
   BODY_TYPES,
   type BodyType,
@@ -45,6 +42,8 @@ export function VehicleFormPage() {
 function VehicleForm({ id }: { id?: string }) {
   const [, navigate] = useLocation();
   const existing = useGarage((state) => state.data.vehicles.find((vehicle) => vehicle.id === id));
+  const serviceRecords = useGarage((state) => state.data.serviceRecords);
+  const fuelFillUps = useGarage((state) => state.data.fuelFillUps);
   const addVehicle = useGarage((state) => state.addVehicle);
   const updateVehicle = useGarage((state) => state.updateVehicle);
   const form = useRef<HTMLFormElement>(null);
@@ -98,8 +97,7 @@ function VehicleForm({ id }: { id?: string }) {
       ignoredServiceTypeIds: existing?.ignoredServiceTypeIds ?? [],
     });
     if (!parsed.success) {
-      setErrors(toFieldErrors(parsed.error));
-      focusFirstError(form.current);
+      reportErrors(form.current, setErrors, toFieldErrors(parsed.error));
       return;
     }
     if (id) {
@@ -109,6 +107,13 @@ function VehicleForm({ id }: { id?: string }) {
       navigate(`/vehicles/${addVehicle(parsed.data)}`);
     }
   }
+
+  // Logged readings outrank this field, so say why saving a lower number won't change the mileage.
+  const logged = id ? highestLoggedReading(id, serviceRecords, fuelFillUps) : null;
+  const heldUp = logged && logged.odometer > (toNumber(odometer) ?? 0);
+  const mileageNote = heldUp
+    ? `${logged.source === 'fuel' ? 'A fuel fill-up' : 'A service'} on ${formatDate(logged.date)} logged ${logged.odometer.toLocaleString('en-US')} mi, which sets the current mileage. If that's a typo, correct that entry.`
+    : undefined;
 
   return (
     <div className="mx-auto max-w-xl">
@@ -260,6 +265,7 @@ function VehicleForm({ id }: { id?: string }) {
             value={odometer}
             onChange={(event) => setOdometer(event.target.value)}
             error={errors.enteredOdometer}
+            hint={mileageNote}
           />
           <div className="flex justify-end gap-3 pt-2">
             <Button type="submit" variant="primary">

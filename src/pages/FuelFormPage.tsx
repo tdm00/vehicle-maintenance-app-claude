@@ -2,7 +2,9 @@ import { type FormEvent, useRef, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
 import {
   type FieldErrors,
-  focusFirstError,
+  FUTURE_DATE_ERROR,
+  mileageHint,
+  reportErrors,
   toFieldErrors,
   toNumber,
 } from '../components/formErrors';
@@ -10,7 +12,7 @@ import { BackLink, Button, Card, ConfirmDialog, PageTitle, TextField } from '../
 import { vehicleName } from '../components/VehicleCard';
 import { toLocalIso } from '../domain/dates';
 import { centsToInput, parseDollars } from '../domain/money';
-import { currentOdometer, isBelowKnownOdometer } from '../domain/odometer';
+import { currentOdometer } from '../domain/odometer';
 import { fuelFillUpSchema, type Vehicle } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
@@ -35,7 +37,8 @@ function FuelForm({ vehicle, fillUpId }: { vehicle: Vehicle; fillUpId?: string }
   const known = currentOdometer(vehicle, data.serviceRecords, data.fuelFillUps);
   const listHref = `/vehicles/${vehicle.id}/fuel`;
 
-  const [date, setDate] = useState(existing?.date ?? toLocalIso(new Date()));
+  const today = toLocalIso(new Date());
+  const [date, setDate] = useState(existing?.date ?? today);
   const [odometer, setOdometer] = useState(existing ? String(existing.odometer) : '');
   const [gallons, setGallons] = useState(existing ? String(existing.gallons) : '');
   const [cost, setCost] = useState(existing ? centsToInput(existing.costCents) : '');
@@ -55,18 +58,18 @@ function FuelForm({ vehicle, fillUpId }: { vehicle: Vehicle; fillUpId?: string }
       costCents: costCents ?? undefined,
       isFull,
     });
-    if (!parsed.success) {
-      const fieldErrors = toFieldErrors(parsed.error);
-      if (costCents === null) fieldErrors.costCents = 'Enter an amount, such as 45.50';
-      setErrors(fieldErrors);
-      focusFirstError(form.current);
+    const fieldErrors: FieldErrors = parsed.success ? {} : toFieldErrors(parsed.error);
+    if (costCents === null) fieldErrors.costCents = 'Enter an amount, such as 45.50';
+    if (date > today) fieldErrors.date = FUTURE_DATE_ERROR;
+    if (!parsed.success || Object.keys(fieldErrors).length > 0) {
+      reportErrors(form.current, setErrors, fieldErrors);
       return;
     }
     saveFuelFillUp({ ...parsed.data, id: fillUpId });
     navigate(listHref);
   }
 
-  const belowKnown = !existing && isBelowKnownOdometer(toNumber(odometer), known);
+  const defaultHint = `Current mileage is ${known.toLocaleString('en-US')} mi.`;
 
   return (
     <div className="mx-auto max-w-xl">
@@ -81,6 +84,7 @@ function FuelForm({ vehicle, fillUpId }: { vehicle: Vehicle; fillUpId?: string }
             label="Date"
             type="date"
             value={date}
+            max={today}
             onChange={(event) => setDate(event.target.value)}
             error={errors.date}
           />
@@ -90,11 +94,7 @@ function FuelForm({ vehicle, fillUpId }: { vehicle: Vehicle; fillUpId?: string }
             value={odometer}
             onChange={(event) => setOdometer(event.target.value)}
             error={errors.odometer}
-            hint={
-              belowKnown
-                ? `This is below the current ${known.toLocaleString('en-US')} mi. That's fine for an older fill-up.`
-                : `Current mileage is ${known.toLocaleString('en-US')} mi.`
-            }
+            hint={existing ? defaultHint : mileageHint(toNumber(odometer), known, defaultHint)}
           />
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField
