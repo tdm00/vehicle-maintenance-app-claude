@@ -22,6 +22,8 @@ runs:
       shell: bash
     - run: npm test
       shell: bash
+    - run: npm run test:timezones
+      shell: bash
     - run: npm run build
       shell: bash
       env:

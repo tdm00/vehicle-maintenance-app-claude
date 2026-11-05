@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "data": {
+    "vehicles": [
+      {
+        "id": "sample-crv",
+        "description": "Family SUV",
+        "make": "Honda",
+        "model": "CR-V",
+        "year": 2019,
+        "color": "#dc2626",
+        "bodyType": "suv",
+        "powertrain": "gas",
+        "enteredOdometer": 68400,
+        "ignoredServiceTypeIds": []
+      },
+      {
+        "id": "sample-truck",
+        "description": "Work truck",
+        "make": "Ford",
+        "model": "F-150",
+        "year": 2012,
+        "color": "#1e3a8a",
+        "bodyType": "truck",
+        "powertrain": "gas",
+        "enteredOdometer": 141250,
+        "ignoredServiceTypeIds": []
+      },
+      {
+        "id": "sample-ev",
+        "description": "Commuter",
+        "make": "Tesla",
+        "model": "Model 3",
+        "year": 2022,
+        "color": "#f8fafc",
+        "bodyType": "sedan",
+        "powertrain": "electric",
+        "enteredOdometer": 31800,
+        "ignoredServiceTypeIds": []
+      }
+    ],
+    "serviceRecords": [
+      {
+        "id": "s1",
+        "vehicleId": "sample-crv",
+        "date": "2026-09-04",
+        "odometer": 67700,
+        "serviceTypeIds": ["oil-change", "tire-rotation"],
+        "costCents": 8900,
+        "notes": ""
+      },
+      {
+        "id": "s2",
+        "vehicleId": "sample-crv",
+        "date": "2025-09-04",
+        "odometer": 57000,
+        "serviceTypeIds": ["brake-inspection", "cabin-air-filter"],
+        "costCents": 14500,
+        "notes": ""
+      },
+      {
+        "id": "s3",
+        "vehicleId": "sample-truck",
+        "date": "2026-02-04",
+        "odometer": 132000,
+        "serviceTypeIds": ["oil-change"],
+        "costCents": 6500,
+        "notes": ""
+      },
+      {
+        "id": "s4",
+        "vehicleId": "sample-truck",
+        "date": "2025-10-04",
+        "odometer": 130000,
+        "serviceTypeIds": ["tire-rotation", "engine-air-filter"],
+        "costCents": 9000,
+        "notes": ""
+      },
+      {
+        "id": "s5",
+        "vehicleId": "sample-ev",
+        "date": "2026-06-04",
+        "odometer": 27000,
+        "serviceTypeIds": ["tire-rotation"],
+        "costCents": 6000,
+        "notes": ""
+      }
+    ],
+    "fuelFillUps": [
+      {
+        "id": "f1",
+        "vehicleId": "sample-crv",
+        "date": "2026-08-04",
+        "odometer": 67400,
+        "gallons": 11.2,
+        "costCents": 3920,
+        "isFull": true
+      },
+      {
+        "id": "f2",
+        "vehicleId": "sample-crv",
+        "date": "2026-09-04",
+        "odometer": 67740,
+        "gallons": 11.4,
+        "costCents": 3990,
+        "isFull": true
+      },
+      {
+        "id": "f3",
+        "vehicleId": "sample-crv",
+        "date": "2026-10-04",
+        "odometer": 68080,
+        "gallons": 10.9,
+        "costCents": 3815,
+        "isFull": true
+      },
+      {
+        "id": "f4",
+        "vehicleId": "sample-crv",
+        "date": "2026-11-04",
+        "odometer": 68400,
+        "gallons": 11,
+        "costCents": 3850,
+        "isFull": true
+      }
+    ],
+    "serviceTypes": [
+      {
+        "id": "oil-change",
+        "name": "Oil change",
+        "intervalMiles": 5000,
+        "intervalMonths": 6,
+        "powertrains": ["gas", "diesel", "hybrid"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "tire-rotation",
+        "name": "Tire rotation",
+        "intervalMiles": 7500,
+        "intervalMonths": 6,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "brake-inspection",
+        "name": "Brake inspection",
+        "intervalMiles": 15000,
+        "intervalMonths": 12,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "engine-air-filter",
+        "name": "Engine air filter",
+        "intervalMiles": 15000,
+        "intervalMonths": 24,
+        "powertrains": ["gas", "diesel", "hybrid"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "cabin-air-filter",
+        "name": "Cabin air filter",
+        "intervalMiles": 15000,
+        "intervalMonths": 12,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "wiper-blades",
+        "name": "Wiper blades",
+        "intervalMiles": null,
+        "intervalMonths": 12,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "battery-check",
+        "name": "12V battery check",
+        "intervalMiles": null,
+        "intervalMonths": 12,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "brake-fluid",
+        "name": "Brake fluid",
+        "intervalMiles": null,
+        "intervalMonths": 36,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "coolant",
+        "name": "Coolant flush",
+        "intervalMiles": 30000,
+        "intervalMonths": 36,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "transmission-fluid",
+        "name": "Transmission fluid",
+        "intervalMiles": 60000,
+        "intervalMonths": 60,
+        "powertrains": ["gas", "diesel", "hybrid"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "spark-plugs",
+        "name": "Spark plugs",
+        "intervalMiles": 60000,
+        "intervalMonths": 72,
+        "powertrains": ["gas", "hybrid"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      },
+      {
+        "id": "tire-replacement",
+        "name": "Tire replacement",
+        "intervalMiles": 50000,
+        "intervalMonths": 72,
+        "powertrains": ["gas", "diesel", "hybrid", "electric"],
+        "isCustom": false,
+        "isHidden": false,
+        "intervalsEdited": false
+      }
+    ],
+    "settings": {
+      "lastBackupAt": null
+    }
+  }
+}
