@@ -6,8 +6,8 @@ updates:
       interval: weekly
     groups:
       dependencies:
-        patterns: ['*']
+        patterns: ["*"]
   - package-ecosystem: github-actions
-    directories: ['/', '/.github/actions/verify']
+    directories: ["/", "/.github/actions/verify"]
     schedule:
       interval: weekly

@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
+      - "**.md"
+      - "docs/**"
 
 # Runs one at a time, so two quick merges can't both claim the same version.
 concurrency:
