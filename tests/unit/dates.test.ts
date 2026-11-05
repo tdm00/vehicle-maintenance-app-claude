@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { addMonths, daysBetween, formatDate, toLocalIso } from '../../src/domain/dates';
+import { addDays, addMonths, daysBetween, formatDate, toLocalIso } from '../../src/domain/dates';
 
 describe('addMonths', () => {
   test.each([
@@ -24,6 +24,15 @@ describe('daysBetween', () => {
   ])('%s to %s is %i', (from, to, expected) => {
     expect(daysBetween(from, to)).toBe(expected);
   });
+});
+
+test.each([
+  ['2026-11-04', 20, '2026-11-24'],
+  ['2026-12-25', 10, '2027-01-04'],
+  ['2024-02-28', 1, '2024-02-29'],
+  ['2026-03-07', 2, '2026-03-09'], // spans a US daylight saving change
+])('%s + %i days is %s', (start, days, expected) => {
+  expect(addDays(start, days)).toBe(expected);
 });
 
 test('toLocalIso uses local calendar fields and pads them', () => {

@@ -47,7 +47,8 @@ export function BackupSection() {
       </h2>
       <p className="mb-3 text-sm text-slate-600">
         Your data lives only in this browser. A backup file is how you move it to another browser or
-        device, or keep it safe if browser data is cleared.
+        device, or keep it safe if browser data is cleared. Backup files aren't encrypted and
+        include your insurance policy numbers, so store them somewhere safe.
       </p>
       <Card className="p-4">
         <p className="text-sm text-slate-700">

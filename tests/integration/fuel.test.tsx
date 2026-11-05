@@ -123,7 +123,7 @@ describe('electric vehicles', () => {
 
   test('have no fuel tab', async () => {
     renderApp('/vehicles/v1', ev());
-    expect(await screen.findByRole('link', { name: 'Service history' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Service' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Fuel' })).toBeNull();
   });
 

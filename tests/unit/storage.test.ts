@@ -12,7 +12,7 @@ import {
   type StorageBacking,
   serialize,
 } from '../../src/store/storage';
-import { vehicle } from './builders';
+import { policy, vehicle } from './builders';
 
 function memoryBacking(initial: Record<string, string> = {}) {
   const items = new Map(Object.entries(initial));
@@ -76,6 +76,41 @@ describe('migrations', () => {
     };
     expect(parseSaved(serialize(garage, 1), 2, migrations).kind).toBe('corrupt');
   });
+});
+
+describe('upgrading from version 1', () => {
+  const { insurancePolicies: _dropped, ...v1Data } = emptyGarage();
+  const v1 = JSON.stringify({
+    schemaVersion: 1,
+    data: { ...v1Data, vehicles: [vehicle()] },
+  });
+
+  test('keeps everything and adds an empty policy list', () => {
+    const result = parseSaved(v1);
+    if (result.kind !== 'ok') throw new Error(result.kind);
+    expect(result.data.vehicles).toEqual([vehicle()]);
+    expect(result.data.serviceTypes).toEqual(emptyGarage().serviceTypes);
+    expect(result.data.insurancePolicies).toEqual([]);
+  });
+
+  test('old backup files can be restored', () => {
+    expect(parseImport(v1).kind).toBe('ok');
+  });
+
+  test('a version 1 save is upgraded on load and rewritten on the next save', () => {
+    const { backing, items } = memoryBacking({ [STORAGE_KEY]: v1 });
+    const storage = createStorage(backing);
+    const loaded = storage.load();
+    if (loaded.kind !== 'ok') throw new Error(loaded.kind);
+    expect(items.get(STORAGE_KEY)).toBe(v1);
+    storage.save(loaded.data);
+    expect(JSON.parse(items.get(STORAGE_KEY) ?? '').schemaVersion).toBe(SCHEMA_VERSION);
+  });
+});
+
+test('data with policies is refused by version 1, instead of having them stripped', () => {
+  const saved = serialize({ ...emptyGarage(), insurancePolicies: [policy()] });
+  expect(parseSaved(saved, 1, {})).toEqual({ kind: 'newer', version: SCHEMA_VERSION });
 });
 
 test('parseImport rejects oversized files', () => {

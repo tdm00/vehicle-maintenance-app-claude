@@ -10,7 +10,7 @@ import {
   STORAGE_KEY,
   serialize,
 } from '../../src/store/storage';
-import { fill, record, vehicle } from './builders';
+import { fill, policy, record, vehicle } from './builders';
 
 const newVehicle = (): Omit<Vehicle, 'id'> => {
   const { id: _id, ...rest } = vehicle();
@@ -110,6 +110,44 @@ describe('records', () => {
     expect(store.getState().data.serviceTypes.find((t) => t.id === 'oil-change')?.isHidden).toBe(
       true,
     );
+  });
+});
+
+describe('insurance', () => {
+  const newPolicy = (vehicleIds: string[]) => ({ ...policy({ vehicleIds }), id: undefined });
+
+  test('saving adds and then replaces; delete removes', () => {
+    const store = fresh();
+    store.getState().saveInsurancePolicy(newPolicy(['a']));
+    const saved = store.getState().data.insurancePolicies[0];
+    if (!saved) throw new Error('not saved');
+    store.getState().saveInsurancePolicy({ ...saved, company: 'Renamed' });
+    expect(
+      fresh()
+        .getState()
+        .data.insurancePolicies.map((p) => p.company),
+    ).toEqual(['Renamed']);
+    store.getState().deleteInsurancePolicy(saved.id);
+    expect(store.getState().data.insurancePolicies).toEqual([]);
+  });
+
+  test('deleting a vehicle removes it from shared policies, and keeps the policy', () => {
+    const store = fresh();
+    const first = store.getState().addVehicle(newVehicle());
+    const second = store.getState().addVehicle(newVehicle());
+    store.getState().saveInsurancePolicy(newPolicy([first, second]));
+    store.getState().deleteVehicle(first);
+    expect(store.getState().data.insurancePolicies[0]?.vehicleIds).toEqual([second]);
+    store.getState().deleteVehicle(second);
+    expect(store.getState().data.insurancePolicies[0]?.vehicleIds).toEqual([]);
+  });
+
+  test('editing a vehicle leaves its policies alone', () => {
+    const store = fresh();
+    const id = store.getState().addVehicle(newVehicle());
+    store.getState().saveInsurancePolicy(newPolicy([id]));
+    store.getState().updateVehicle({ ...newVehicle(), id, description: 'Renamed' });
+    expect(store.getState().data.insurancePolicies[0]?.vehicleIds).toEqual([id]);
   });
 });
 

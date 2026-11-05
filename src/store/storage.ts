@@ -3,12 +3,14 @@ import { type GarageData, garageDataSchema } from '../domain/schemas';
 
 export const STORAGE_KEY = 'garage.data';
 export const QUARANTINE_KEY = 'garage.quarantine';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 
 /** Each entry upgrades data from that version to the next. */
 export type Migrations = Record<number, (data: unknown) => unknown>;
-export const MIGRATIONS: Migrations = {};
+export const MIGRATIONS: Migrations = {
+  1: (data) => ({ ...(data as object), insurancePolicies: [] }),
+};
 
 export type StorageBacking = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -25,6 +27,7 @@ export function emptyGarage(): GarageData {
     serviceRecords: [],
     fuelFillUps: [],
     serviceTypes: structuredClone(DEFAULT_SERVICE_TYPES),
+    insurancePolicies: [],
     settings: { lastBackupAt: null },
   };
 }

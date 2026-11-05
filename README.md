@@ -1,7 +1,7 @@
 # Garage
 
 A vehicle maintenance tracker that runs entirely in the browser. Track service history and fuel
-economy for each vehicle, and see what needs attention across your whole garage.
+economy for each vehicle, keep its insurance details handy, and see what needs attention across your whole garage.
 
 ## Use it
 
@@ -9,7 +9,10 @@ Download `garage.html` from the [latest release](../../releases/latest) and open
 any static web host. There is no server and no account, and the app makes no network requests.
 
 **Your data stays in your browser.** Use **Settings → Download backup** to keep a copy or to move
-it to another browser or device.
+it to another browser or device. Nothing is encrypted, including insurance policy numbers in the
+browser and in backup files, so keep backups somewhere safe.
+
+Upgrading is automatic, but new data can't be opened in an older release. Use the latest version.
 
 **On a phone,** host the file. Opening a local HTML file on a phone generally previews it rather
 than running it as an app, and data may not persist.

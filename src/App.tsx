@@ -6,6 +6,8 @@ import { Layout } from './components/Layout';
 import { RecoveryScreen } from './components/RecoveryScreen';
 import { FuelFormPage } from './pages/FuelFormPage';
 import { GaragePage } from './pages/GaragePage';
+import { InsuranceFormPage } from './pages/InsuranceFormPage';
+import { InsurancePage } from './pages/InsurancePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ServiceFormPage } from './pages/ServiceFormPage';
 import { ServiceTypeFormPage } from './pages/ServiceTypeFormPage';
@@ -34,6 +36,9 @@ export function App() {
               <Route path="/vehicles/:id/service/:recordId" component={ServiceFormPage} />
               <Route path="/vehicles/:id/fuel/new" component={FuelFormPage} />
               <Route path="/vehicles/:id/fuel/:fillUpId" component={FuelFormPage} />
+              <Route path="/vehicles/:id/insurance">
+                <VehiclePage tab="insurance" />
+              </Route>
               <Route path="/vehicles/:id/fuel">
                 <VehiclePage tab="fuel" />
               </Route>
@@ -43,6 +48,9 @@ export function App() {
               <Route path="/vehicles/:id">
                 <VehiclePage />
               </Route>
+              <Route path="/insurance/new/:vehicleId?" component={InsuranceFormPage} />
+              <Route path="/insurance/:id" component={InsuranceFormPage} />
+              <Route path="/insurance" component={InsurancePage} />
               <Route path="/settings/services/new" component={ServiceTypeFormPage} />
               <Route path="/settings/services/:id" component={ServiceTypeFormPage} />
               <Route path="/settings" component={SettingsPage} />

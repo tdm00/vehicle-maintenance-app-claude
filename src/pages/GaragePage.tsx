@@ -30,7 +30,8 @@ export function GaragePage() {
             </>
           }
         >
-          Add a vehicle to track its service history, fuel economy, and upcoming maintenance.
+          Add a vehicle to track its service history, fuel economy, insurance, and upcoming
+          maintenance.
         </EmptyState>
       </>
     );
@@ -40,7 +41,8 @@ export function GaragePage() {
   const { lastBackupAt } = data.settings;
   const needsBackup = !lastBackupAt || daysBetween(lastBackupAt, today) > BACKUP_NUDGE_DAYS;
   const taskCount = (vehicleId: string) =>
-    tasks.actionable.filter((item) => item.vehicle.id === vehicleId).length;
+    tasks.actionable.filter((item) => item.vehicle.id === vehicleId).length +
+    tasks.insurance.filter((policy) => policy.vehicleIds.includes(vehicleId)).length;
 
   return (
     <>
@@ -64,7 +66,7 @@ export function GaragePage() {
           </Link>
         </p>
       )}
-      <TaskList tasks={tasks} />
+      <TaskList tasks={tasks} vehicles={data.vehicles} today={today} />
       <section aria-labelledby="vehicles-heading">
         <h2 id="vehicles-heading" className="mb-3 text-lg font-semibold">
           Vehicles

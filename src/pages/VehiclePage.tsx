@@ -7,16 +7,18 @@ import { BODY_TYPE_LABELS, POWERTRAIN_LABELS } from '../data/vehicles';
 import { currentOdometer } from '../domain/odometer';
 import { useGarage } from '../store/garageStore';
 import { FuelTab } from './FuelTab';
+import { InsuranceTab } from './InsuranceTab';
 import { MaintenanceTab } from './MaintenanceTab';
 import { NotFoundPage } from './NotFoundPage';
 import { ServiceHistoryTab } from './ServiceHistoryTab';
 
-export type VehicleTab = 'maintenance' | 'service' | 'fuel';
+export type VehicleTab = 'maintenance' | 'service' | 'fuel' | 'insurance';
 
 const TABS: { id: VehicleTab; label: string; suffix: string }[] = [
   { id: 'maintenance', label: 'Maintenance', suffix: '' },
-  { id: 'service', label: 'Service history', suffix: '/service' },
+  { id: 'service', label: 'Service', suffix: '/service' },
   { id: 'fuel', label: 'Fuel', suffix: '/fuel' },
+  { id: 'insurance', label: 'Insurance', suffix: '/insurance' },
 ];
 
 export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
@@ -62,13 +64,16 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
         </div>
       </div>
 
-      <nav aria-label="Vehicle sections" className="mt-6 flex gap-1 border-b border-slate-300">
+      <nav
+        aria-label="Vehicle sections"
+        className="mt-6 flex gap-1 overflow-x-auto border-b border-slate-300"
+      >
         {tabs.map((entry) => (
           <Link
             key={entry.id}
             href={`/vehicles/${vehicle.id}${entry.suffix}`}
             aria-current={active === entry.id ? 'page' : undefined}
-            className={`-mb-px flex min-h-11 items-center border-b-2 px-3 text-sm font-semibold ${
+            className={`flex min-h-11 shrink-0 items-center border-b-2 px-3 text-sm font-semibold ${
               active === entry.id
                 ? 'border-brand-700 text-brand-800'
                 : 'border-transparent text-slate-700 hover:text-slate-950'
@@ -83,6 +88,7 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
         {active === 'maintenance' && <MaintenanceTab vehicle={vehicle} />}
         {active === 'service' && <ServiceHistoryTab vehicle={vehicle} />}
         {active === 'fuel' && <FuelTab vehicle={vehicle} />}
+        {active === 'insurance' && <InsuranceTab vehicle={vehicle} />}
       </div>
 
       {confirming && (
@@ -95,7 +101,8 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
             navigate('/');
           }}
         >
-          This also deletes its service history and fuel log. This can't be undone.
+          This also deletes its service history and fuel log, and removes it from any insurance
+          policy. This can't be undone.
         </ConfirmDialog>
       )}
     </>

@@ -2,7 +2,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ErrorBoundary } from '../../src/components/ErrorBoundary';
 import { garageStore } from '../../src/store/garageStore';
-import { emptyGarage, QUARANTINE_KEY, STORAGE_KEY, serialize } from '../../src/store/storage';
+import {
+  emptyGarage,
+  QUARANTINE_KEY,
+  SCHEMA_VERSION,
+  STORAGE_KEY,
+  serialize,
+} from '../../src/store/storage';
 import { garage, vehicle } from '../unit/builders';
 import { renderApp, store } from './helpers';
 
@@ -180,7 +186,10 @@ describe('error boundary', () => {
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     screen.getByRole('button', { name: 'Download my data' }).click();
     await waitFor(() => expect(clicks).toHaveBeenCalled());
-    expect(JSON.parse(await (blobs[0] as Blob).text())).toHaveProperty('schemaVersion', 1);
+    expect(JSON.parse(await (blobs[0] as Blob).text())).toHaveProperty(
+      'schemaVersion',
+      SCHEMA_VERSION,
+    );
     expect(screen.getByRole('button', { name: 'Reload' })).toBeInTheDocument();
   });
 

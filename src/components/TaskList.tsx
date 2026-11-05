@@ -1,7 +1,10 @@
 import { Link } from 'wouter';
+import { formatDate } from '../domain/dates';
+import { policyStatus, vehicleNames } from '../domain/insurance';
 import type { MaintenanceItem, TaskList as Tasks } from '../domain/maintenance';
+import type { InsurancePolicy, Vehicle } from '../domain/schemas';
 import { describeItem } from './maintenanceText';
-import { StatusBadge } from './StatusBadge';
+import { PolicyBadge, StatusBadge } from './StatusBadge';
 import { Card } from './ui';
 
 export const GUIDANCE_NOTE =
@@ -39,8 +42,48 @@ function TaskRow({ item }: { item: MaintenanceItem }) {
   );
 }
 
-export function TaskList({ tasks }: { tasks: Tasks }) {
-  const { actionable, noRecord } = tasks;
+function PolicyRow({
+  policy,
+  vehicles,
+  today,
+}: {
+  policy: InsurancePolicy;
+  vehicles: Vehicle[];
+  today: string;
+}) {
+  const status = policyStatus(policy, today);
+  return (
+    <li className="flex items-center gap-3 px-4 py-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="font-medium">{policy.company} insurance</span>
+          <PolicyBadge status={status} />
+        </div>
+        <p className="truncate text-sm text-slate-600">
+          {vehicleNames(policy, vehicles)} · {status === 'expired' ? 'Expired' : 'Expires'}{' '}
+          {formatDate(policy.expirationDate)}
+        </p>
+      </div>
+      <Link
+        href={`/insurance/${policy.id}`}
+        className="flex min-h-11 shrink-0 items-center px-2 text-sm font-semibold text-brand-700 hover:text-brand-800"
+      >
+        Update<span className="sr-only">: {policy.company} insurance</span>
+      </Link>
+    </li>
+  );
+}
+
+export function TaskList({
+  tasks,
+  vehicles,
+  today,
+}: {
+  tasks: Tasks;
+  vehicles: Vehicle[];
+  today: string;
+}) {
+  const { actionable, noRecord, insurance } = tasks;
 
   return (
     <section aria-labelledby="tasks-heading" className="mb-8">
@@ -48,8 +91,11 @@ export function TaskList({ tasks }: { tasks: Tasks }) {
         Needs attention
       </h2>
       <Card className="overflow-hidden">
-        {actionable.length > 0 ? (
+        {actionable.length + insurance.length > 0 ? (
           <ul className="divide-y divide-slate-200">
+            {insurance.map((policy) => (
+              <PolicyRow key={policy.id} policy={policy} vehicles={vehicles} today={today} />
+            ))}
             {actionable.map((item) => (
               <TaskRow key={`${item.vehicle.id}-${item.serviceType.id}`} item={item} />
             ))}

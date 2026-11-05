@@ -27,6 +27,10 @@ export function addMonths(iso: string, months: number): string {
   return clamped.toISOString().slice(0, 10);
 }
 
+export function addDays(iso: string, days: number): string {
+  return new Date(toUtc(iso) + days * DAY_MS).toISOString().slice(0, 10);
+}
+
 /** Whole days from `from` to `to`; negative when `to` is earlier. */
 export function daysBetween(from: string, to: string): number {
   return Math.round((toUtc(to) - toUtc(from)) / DAY_MS);

@@ -33,7 +33,13 @@ export function Layout({ children }: { children: ReactNode }) {
             </span>
             Garage
           </Link>
-          <nav aria-label="Main">
+          <nav aria-label="Main" className="flex items-center gap-2">
+            <Link
+              href="/insurance"
+              className="flex min-h-11 items-center px-2 text-sm font-medium text-slate-200 hover:text-white"
+            >
+              Insurance
+            </Link>
             <Link
               href="/settings"
               className="flex min-h-11 items-center px-2 text-sm font-medium text-slate-200 hover:text-white"

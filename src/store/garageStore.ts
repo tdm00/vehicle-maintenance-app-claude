@@ -3,6 +3,7 @@ import { createStore, type StoreApi } from 'zustand/vanilla';
 import type {
   FuelFillUp,
   GarageData,
+  InsurancePolicy,
   ServiceRecord,
   ServiceType,
   Vehicle,
@@ -36,6 +37,8 @@ export interface GarageState {
   saveFuelFillUp(fillUp: New<FuelFillUp> & { id?: string }): void;
   deleteFuelFillUp(id: string): void;
   saveServiceType(type: New<ServiceType> & { id?: string }): void;
+  saveInsurancePolicy(policy: New<InsurancePolicy> & { id?: string }): void;
+  deleteInsurancePolicy(id: string): void;
   replaceData(data: GarageData): void;
   markBackedUp(date: string): void;
   discardSaved(): void;
@@ -99,6 +102,10 @@ export function createGarageStore(storage: GarageStorage): StoreApi<GarageState>
           vehicles: data.vehicles.filter((vehicle) => vehicle.id !== id),
           serviceRecords: data.serviceRecords.filter((record) => record.vehicleId !== id),
           fuelFillUps: data.fuelFillUps.filter((fillUp) => fillUp.vehicleId !== id),
+          insurancePolicies: data.insurancePolicies.map((policy) => ({
+            ...policy,
+            vehicleIds: policy.vehicleIds.filter((vehicleId) => vehicleId !== id),
+          })),
         }));
       },
 
@@ -140,6 +147,20 @@ export function createGarageStore(storage: GarageStorage): StoreApi<GarageState>
 
       saveServiceType(type) {
         commit((data) => ({ ...data, serviceTypes: upsert(data.serviceTypes, type) }));
+      },
+
+      saveInsurancePolicy(policy) {
+        commit((data) => ({
+          ...data,
+          insurancePolicies: upsert(data.insurancePolicies, policy),
+        }));
+      },
+
+      deleteInsurancePolicy(id) {
+        commit((data) => ({
+          ...data,
+          insurancePolicies: data.insurancePolicies.filter((policy) => policy.id !== id),
+        }));
       },
 
       replaceData(data) {

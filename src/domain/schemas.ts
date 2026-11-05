@@ -82,11 +82,23 @@ export const serviceTypeSchema = z.object({
   intervalsEdited: z.boolean().default(false),
 });
 
+export const insurancePolicySchema = z.object({
+  id,
+  /** Empty only when every covered vehicle was deleted; the policy is kept rather than lost. */
+  vehicleIds: z.array(id),
+  company: z.string().trim().min(1, 'Add the company').max(80),
+  policyNumber: z.string().trim().min(1, 'Add the policy number').max(60),
+  expirationDate: isoDate,
+  phone: z.string().trim().max(30).default(''),
+  notes: z.string().trim().max(500).default(''),
+});
+
 export const garageDataSchema = z.object({
   vehicles: z.array(vehicleSchema),
   serviceRecords: z.array(serviceRecordSchema),
   fuelFillUps: z.array(fuelFillUpSchema),
   serviceTypes: z.array(serviceTypeSchema),
+  insurancePolicies: z.array(insurancePolicySchema),
   settings: z.object({ lastBackupAt: isoDate.nullable() }),
 });
 
@@ -96,4 +108,5 @@ export type Vehicle = z.infer<typeof vehicleSchema>;
 export type ServiceRecord = z.infer<typeof serviceRecordSchema>;
 export type FuelFillUp = z.infer<typeof fuelFillUpSchema>;
 export type ServiceType = z.infer<typeof serviceTypeSchema>;
+export type InsurancePolicy = z.infer<typeof insurancePolicySchema>;
 export type GarageData = z.infer<typeof garageDataSchema>;

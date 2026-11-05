@@ -192,6 +192,6 @@ describe('buildTaskList', () => {
   test('EVs are never told to change their oil', () => {
     const ev = vehicle({ powertrain: 'electric' });
     const data = garage({ vehicles: [ev], serviceTypes: [serviceType()] });
-    expect(buildTaskList(data, TODAY)).toEqual({ actionable: [], noRecord: [] });
+    expect(buildTaskList(data, TODAY)).toEqual({ actionable: [], noRecord: [], insurance: [] });
   });
 });

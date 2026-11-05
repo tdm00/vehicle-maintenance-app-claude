@@ -1,7 +1,8 @@
 import { addMonths, DAYS_PER_MONTH, daysBetween } from './dates';
+import { expiringPolicies } from './insurance';
 import { appliesToVehicle, effectiveInterval, type Interval } from './intervals';
 import { currentOdometer } from './odometer';
-import type { GarageData, ServiceRecord, ServiceType, Vehicle } from './schemas';
+import type { GarageData, InsurancePolicy, ServiceRecord, ServiceType, Vehicle } from './schemas';
 
 export type MaintenanceStatus = 'overdue' | 'dueSoon' | 'noRecord' | 'ok';
 
@@ -132,6 +133,8 @@ export interface TaskList {
   actionable: MaintenanceItem[];
   /** Services with no history, kept apart so a new vehicle doesn't flood the list. */
   noRecord: { vehicle: Vehicle; items: MaintenanceItem[] }[];
+  /** Policies that have expired or expire soon, soonest first. */
+  insurance: InsurancePolicy[];
 }
 
 export function buildTaskList(data: GarageData, today: string): TaskList {
@@ -147,5 +150,9 @@ export function buildTaskList(data: GarageData, today: string): TaskList {
     if (missing.length > 0) noRecord.push({ vehicle, items: missing });
   }
 
-  return { actionable: sortByUrgency(actionable), noRecord };
+  return {
+    actionable: sortByUrgency(actionable),
+    noRecord,
+    insurance: expiringPolicies(data.insurancePolicies, today),
+  };
 }
