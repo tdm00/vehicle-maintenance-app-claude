@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - "**.md"
       - "docs/**"
+      - ".github/**"
 
 # Runs one at a time, so two quick merges can't both claim the same version.
 concurrency:
