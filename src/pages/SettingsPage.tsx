@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import { BackupSection } from '../components/BackupSection';
 import { Card, LinkButton, PageTitle } from '../components/ui';
 import { useGarage } from '../store/garageStore';
 
@@ -15,6 +16,7 @@ export function SettingsPage() {
   return (
     <>
       <PageTitle>Settings</PageTitle>
+      <BackupSection />
       <section aria-labelledby="services-heading">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -51,6 +53,7 @@ export function SettingsPage() {
           </ul>
         </Card>
       </section>
+      <p className="mt-8 text-center text-xs text-slate-600">Garage version {__APP_VERSION__}</p>
     </>
   );
 }

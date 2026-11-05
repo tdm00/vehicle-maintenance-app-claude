@@ -34,7 +34,9 @@ describe('garage task list', () => {
 
   test('logging from a task prefills the service and clears the task', async () => {
     const { user } = renderApp('/', overdue());
-    await user.click(await screen.findByRole('link', { name: 'Log Oil change for Daily driver' }));
+    await user.click(
+      await screen.findByRole('link', { name: 'Log it: Oil change for Daily driver' }),
+    );
     expect(await screen.findByRole('checkbox', { name: 'Oil change' })).toBeChecked();
     expect(screen.getByLabelText('Mileage (optional)')).toHaveValue('50000');
     expect(screen.getByLabelText('Date')).toHaveValue('2026-11-04');
@@ -200,7 +202,7 @@ describe('vehicle maintenance tab', () => {
 
   test('a service can be marked not applicable and restored', async () => {
     const { user } = renderApp('/vehicles/v1', overdue());
-    await user.click(await screen.findByRole('button', { name: 'Oil change does not apply' }));
+    await user.click(await screen.findByRole('button', { name: 'N/A: Oil change' }));
     expect(screen.queryByText('Overdue')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Restore Oil change' }));
     expect(await screen.findByText('Overdue')).toBeInTheDocument();

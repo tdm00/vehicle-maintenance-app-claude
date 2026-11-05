@@ -15,7 +15,7 @@ test('a task appears, and clears once the service is logged', async ({ page }, i
   const tasks = page.getByRole('region', { name: 'Needs attention' });
   await expect(tasks.getByText('Overdue')).toBeVisible();
 
-  await tasks.getByRole('link', { name: /Log Oil change/ }).click();
+  await tasks.getByRole('link', { name: /Log it.*Oil change/ }).click();
   await expect(page.getByRole('checkbox', { name: 'Oil change' })).toBeChecked();
   await page.getByRole('button', { name: 'Save service' }).click();
 
@@ -28,6 +28,6 @@ test('a task appears, and clears once the service is logged', async ({ page }, i
 test('an electric vehicle is not told to change its oil', async ({ page }, info) => {
   await openApp(page, info);
   await addVehicle(page, { make: 'Tesla', model: 'Model 3' });
-  await expect(page.getByText('Tire rotation')).toBeVisible();
-  await expect(page.getByText('Oil change')).toHaveCount(0);
+  await expect(page.getByText('Tire rotation', { exact: true })).toBeVisible();
+  await expect(page.getByText('Oil change', { exact: true })).toHaveCount(0);
 });
