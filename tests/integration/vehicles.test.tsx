@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { garage, serviceType, vehicle } from '../unit/builders';
 import { fillVehicleForm, renderApp, store } from './helpers';
@@ -81,7 +81,8 @@ describe('an existing vehicle', () => {
 
   test('appears in the garage and opens its page', async () => {
     const { user } = renderApp('/', data());
-    await user.click(await screen.findByRole('link', { name: /Daily driver/ }));
+    const vehicles = await screen.findByRole('region', { name: 'Vehicles' });
+    await user.click(within(vehicles).getByRole('link', { name: /Daily driver/ }));
     expect(await screen.findByRole('heading', { name: 'Daily driver' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
