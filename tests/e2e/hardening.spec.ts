@@ -97,7 +97,7 @@ test('sample data covers the whole journey with no accessibility violations', as
   await expect(page.getByRole('heading', { name: 'Family SUV' })).toBeVisible();
   await scan('maintenance tab');
 
-  await page.getByRole('link', { name: 'Service history' }).click();
+  await page.getByRole('link', { name: 'Service', exact: true }).click();
   await expect(page.getByText('Total spent:')).toBeVisible();
   await scan('service history');
 
@@ -115,6 +115,18 @@ test('sample data covers the whole journey with no accessibility violations', as
   await page.getByRole('link', { name: 'Add fill-up' }).click();
   await expect(page.getByRole('heading', { name: 'Add fill-up' })).toBeVisible();
   await scan('fuel form');
+
+  await page.goto(`${page.url().split('#')[0]}#/vehicles/sample-crv/insurance`);
+  await expect(page.getByRole('heading', { name: 'Sample Mutual' })).toBeVisible();
+  await scan('vehicle insurance tab');
+
+  await page.getByRole('link', { name: /Edit/ }).last().click();
+  await expect(page.getByRole('heading', { name: 'Edit policy' })).toBeVisible();
+  await scan('policy form');
+
+  await page.getByRole('banner').getByRole('link', { name: 'Insurance' }).click();
+  await expect(page.getByRole('heading', { name: 'Example Insurance' })).toBeVisible();
+  await scan('insurance page');
 
   await page.getByRole('link', { name: 'Settings' }).click();
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();

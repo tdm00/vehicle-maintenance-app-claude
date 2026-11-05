@@ -1,6 +1,7 @@
 import type {
   FuelFillUp,
   GarageData,
+  InsurancePolicy,
   ServiceRecord,
   ServiceType,
   Vehicle,
@@ -55,11 +56,23 @@ export const serviceType = (overrides: Partial<ServiceType> = {}): ServiceType =
   ...overrides,
 });
 
+export const policy = (overrides: Partial<InsurancePolicy> = {}): InsurancePolicy => ({
+  id: 'policy',
+  vehicleIds: ['car'],
+  company: 'Sample Mutual',
+  policyNumber: 'SM-1',
+  expirationDate: '2027-06-01',
+  phone: '',
+  notes: '',
+  ...overrides,
+});
+
 export const garage = (overrides: Partial<GarageData> = {}): GarageData => ({
   vehicles: [],
   serviceRecords: [],
   fuelFillUps: [],
   serviceTypes: [],
+  insurancePolicies: [],
   settings: { lastBackupAt: null },
   ...overrides,
 });

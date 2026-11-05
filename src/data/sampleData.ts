@@ -1,4 +1,4 @@
-import { addMonths } from '../domain/dates';
+import { addDays, addMonths } from '../domain/dates';
 import type { FuelFillUp, GarageData, ServiceRecord, Vehicle } from '../domain/schemas';
 
 const crv: Vehicle = {
@@ -92,6 +92,26 @@ export function sampleData(base: GarageData, today: string): GarageData {
       fillUp('f2', 2, 67_740, 11.4, 3_990),
       fillUp('f3', 1, 68_080, 10.9, 3_815),
       fillUp('f4', 0, 68_400, 11.0, 3_850),
+    ],
+    insurancePolicies: [
+      {
+        id: 'sample-policy-family',
+        vehicleIds: [crv.id, truck.id],
+        company: 'Sample Mutual',
+        policyNumber: 'SM-1001',
+        expirationDate: addDays(today, 20),
+        phone: '800-555-0100',
+        notes: 'Covers both household vehicles.',
+      },
+      {
+        id: 'sample-policy-ev',
+        vehicleIds: [tesla.id],
+        company: 'Example Insurance',
+        policyNumber: 'EX-2002',
+        expirationDate: addMonths(today, 5),
+        phone: '',
+        notes: '',
+      },
     ],
   };
 }
