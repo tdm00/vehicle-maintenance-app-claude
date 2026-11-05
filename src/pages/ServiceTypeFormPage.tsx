@@ -2,7 +2,7 @@ import { type FormEvent, useRef, useState } from 'react';
 import { useLocation, useParams } from 'wouter';
 import { type FieldErrors, reportErrors, toFieldErrors, toNumber } from '../components/formErrors';
 import { BackLink, Button, Card, PageTitle, TextField } from '../components/ui';
-import { POWERTRAINS, serviceTypeSchema } from '../domain/schemas';
+import { POWERTRAINS, type ServiceType, serviceTypeSchema } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
 import { NotFoundPage } from './NotFoundPage';
 
@@ -10,12 +10,12 @@ export function ServiceTypeFormPage() {
   const { id } = useParams<{ id?: string }>();
   const existing = useGarage((state) => state.data.serviceTypes.find((type) => type.id === id));
   if (id && !existing) return <NotFoundPage />;
-  return <ServiceTypeForm key={id ?? 'new'} id={id} />;
+  return <ServiceTypeForm key={id ?? 'new'} existing={existing} />;
 }
 
-function ServiceTypeForm({ id }: { id?: string }) {
+function ServiceTypeForm({ existing }: { existing?: ServiceType }) {
   const [, navigate] = useLocation();
-  const existing = useGarage((state) => state.data.serviceTypes.find((type) => type.id === id));
+  const id = existing?.id;
   const saveServiceType = useGarage((state) => state.saveServiceType);
   const form = useRef<HTMLFormElement>(null);
 

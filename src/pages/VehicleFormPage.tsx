@@ -20,6 +20,7 @@ import {
   MIN_YEAR,
   POWERTRAINS,
   type Powertrain,
+  type Vehicle,
   vehicleSchema,
 } from '../domain/schemas';
 import { useGarage } from '../store/garageStore';
@@ -27,21 +28,23 @@ import { NotFoundPage } from './NotFoundPage';
 
 const OTHER = '__other';
 
-function yearOptions(today: Date): number[] {
+function yearOptions(today: Date, saved?: number): number[] {
   const newest = today.getFullYear() + 1;
-  return Array.from({ length: newest - MIN_YEAR + 1 }, (_, index) => newest - index);
+  const years = Array.from({ length: newest - MIN_YEAR + 1 }, (_, index) => newest - index);
+  // A saved year outside the range must stay selectable, or the field would open blank.
+  return saved === undefined || years.includes(saved) ? years : [saved, ...years];
 }
 
 export function VehicleFormPage() {
   const { id } = useParams<{ id?: string }>();
   const existing = useGarage((state) => state.data.vehicles.find((vehicle) => vehicle.id === id));
   if (id && !existing) return <NotFoundPage />;
-  return <VehicleForm key={id ?? 'new'} id={id} />;
+  return <VehicleForm key={id ?? 'new'} existing={existing} />;
 }
 
-function VehicleForm({ id }: { id?: string }) {
+function VehicleForm({ existing }: { existing?: Vehicle }) {
   const [, navigate] = useLocation();
-  const existing = useGarage((state) => state.data.vehicles.find((vehicle) => vehicle.id === id));
+  const id = existing?.id;
   const serviceRecords = useGarage((state) => state.data.serviceRecords);
   const fuelFillUps = useGarage((state) => state.data.fuelFillUps);
   const addVehicle = useGarage((state) => state.addVehicle);
@@ -145,7 +148,7 @@ function VehicleForm({ id }: { id?: string }) {
             error={errors.year}
           >
             <option value="">Choose a year</option>
-            {yearOptions(new Date()).map((option) => (
+            {yearOptions(new Date(), existing?.year).map((option) => (
               <option key={option}>{option}</option>
             ))}
           </SelectField>

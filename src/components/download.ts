@@ -6,5 +6,6 @@ export function downloadText(filename: string, text: string) {
   document.body.append(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  // Some browsers read the URL after click() returns, so revoking at once can cancel the download.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

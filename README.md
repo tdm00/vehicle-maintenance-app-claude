@@ -12,6 +12,12 @@ any static web host. There is no server and no account, and the app makes no net
 it to another browser or device. Nothing is encrypted, including insurance policy numbers in the
 browser and in backup files, so keep backups somewhere safe.
 
+**Keep other pages away from it.** Browsers may share storage across every local file, and always
+share it across pages on the same web origin. Another local HTML file you open could read your
+data, and so could other projects on a shared host such as `username.github.io`. On a shared
+computer, or for hosting, use **Settings → Delete all data** when finished, or give the app its own
+domain.
+
 Upgrading is automatic, but new data can't be opened in an older release. Use the latest version.
 
 **On a phone,** host the file. Opening a local HTML file on a phone generally previews it rather

@@ -17,7 +17,7 @@ export function VehicleCard({
   badge?: string;
 }) {
   return (
-    <Link href={`/vehicles/${vehicle.id}`} className="group block rounded-2xl">
+    <Link href={`/vehicles/${vehicle.id}`} className="group block min-w-0 rounded-2xl">
       <Card className="h-full overflow-hidden transition-shadow group-hover:shadow-md">
         <div className="bg-gradient-to-b from-slate-200 to-slate-100 px-8 py-4">
           <VehicleGraphic

@@ -77,6 +77,30 @@ test('a tab that missed an update does not overwrite it', async ({ page, context
   expect(records).toBe(6);
 });
 
+test('very long names never cause sideways scrolling', async ({ page }, info) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await openApp(page, info);
+  await page.getByRole('button', { name: 'Load sample data' }).click();
+  await expect(page.getByRole('heading', { name: 'Vehicles' })).toBeVisible();
+  await page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('garage.data') ?? '');
+    saved.data.vehicles[0].description = 'W'.repeat(80);
+    saved.data.insurancePolicies[0].company = 'W'.repeat(80);
+    saved.data.serviceTypes[0].name = 'W'.repeat(60);
+    localStorage.setItem('garage.data', JSON.stringify(saved));
+  });
+  const base = page.url().split('#')[0];
+  for (const route of ['', '/vehicles/sample-crv', '/insurance', '/settings']) {
+    await page.goto(`${base}#${route}`);
+    await page.reload();
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow, `route "${route}"`).toBe(0);
+  }
+});
+
 test('the app makes no network requests and enforces that', async ({ page }, info) => {
   const appUrl: string = info.project.metadata.appUrl;
   const external: string[] = [];

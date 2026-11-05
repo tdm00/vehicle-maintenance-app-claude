@@ -8,6 +8,13 @@ export const STATUS_LABELS: Record<MaintenanceStatus, string> = {
   ok: 'OK',
 };
 
+export function intervalText(interval: { miles: number | null; months: number | null }): string {
+  const parts: string[] = [];
+  if (interval.miles !== null) parts.push(`${interval.miles.toLocaleString('en-US')} mi`);
+  if (interval.months !== null) parts.push(`${interval.months} mo`);
+  return parts.length > 0 ? `Every ${parts.join(' or ')}` : 'No reminder';
+}
+
 function miles(value: number) {
   return `${Math.abs(value).toLocaleString('en-US')} mi`;
 }

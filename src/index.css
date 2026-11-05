@@ -16,6 +16,7 @@ html {
 body {
   background-color: var(--color-slate-100);
   color: var(--color-slate-900);
+  overflow-wrap: anywhere;
 }
 
 :focus-visible {
