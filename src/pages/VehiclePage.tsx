@@ -6,15 +6,17 @@ import { VehicleGraphic } from '../components/VehicleGraphic';
 import { BODY_TYPE_LABELS, POWERTRAIN_LABELS } from '../data/vehicles';
 import { currentOdometer } from '../domain/odometer';
 import { useGarage } from '../store/garageStore';
+import { FuelTab } from './FuelTab';
 import { MaintenanceTab } from './MaintenanceTab';
 import { NotFoundPage } from './NotFoundPage';
 import { ServiceHistoryTab } from './ServiceHistoryTab';
 
-export type VehicleTab = 'maintenance' | 'service';
+export type VehicleTab = 'maintenance' | 'service' | 'fuel';
 
 const TABS: { id: VehicleTab; label: string; suffix: string }[] = [
   { id: 'maintenance', label: 'Maintenance', suffix: '' },
   { id: 'service', label: 'Service history', suffix: '/service' },
+  { id: 'fuel', label: 'Fuel', suffix: '/fuel' },
 ];
 
 export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
@@ -28,6 +30,10 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
   if (!vehicle) return <NotFoundPage />;
 
   const odometer = currentOdometer(vehicle, data.serviceRecords, data.fuelFillUps);
+  // Electric vehicles have no fuel log, even if an old link points there.
+  const electric = vehicle.powertrain === 'electric';
+  const tabs = electric ? TABS.filter((entry) => entry.id !== 'fuel') : TABS;
+  const active = electric && tab === 'fuel' ? 'maintenance' : tab;
 
   return (
     <>
@@ -57,13 +63,13 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
       </div>
 
       <nav aria-label="Vehicle sections" className="mt-6 flex gap-1 border-b border-slate-300">
-        {TABS.map((entry) => (
+        {tabs.map((entry) => (
           <Link
             key={entry.id}
             href={`/vehicles/${vehicle.id}${entry.suffix}`}
-            aria-current={tab === entry.id ? 'page' : undefined}
+            aria-current={active === entry.id ? 'page' : undefined}
             className={`-mb-px flex min-h-11 items-center border-b-2 px-3 text-sm font-semibold ${
-              tab === entry.id
+              active === entry.id
                 ? 'border-brand-700 text-brand-800'
                 : 'border-transparent text-slate-700 hover:text-slate-950'
             }`}
@@ -74,8 +80,9 @@ export function VehiclePage({ tab = 'maintenance' }: { tab?: VehicleTab }) {
       </nav>
 
       <div className="mt-5">
-        {tab === 'maintenance' && <MaintenanceTab vehicle={vehicle} />}
-        {tab === 'service' && <ServiceHistoryTab vehicle={vehicle} />}
+        {active === 'maintenance' && <MaintenanceTab vehicle={vehicle} />}
+        {active === 'service' && <ServiceHistoryTab vehicle={vehicle} />}
+        {active === 'fuel' && <FuelTab vehicle={vehicle} />}
       </div>
 
       {confirming && (

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Route, Router, Switch } from 'wouter';
 import { useHashLocation } from 'wouter/use-hash-location';
 import { Layout } from './components/Layout';
+import { FuelFormPage } from './pages/FuelFormPage';
 import { GaragePage } from './pages/GaragePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ServiceFormPage } from './pages/ServiceFormPage';
@@ -24,6 +25,11 @@ export function App() {
           <Route path="/vehicles/:id/edit" component={VehicleFormPage} />
           <Route path="/vehicles/:id/service/new/:typeId?" component={ServiceFormPage} />
           <Route path="/vehicles/:id/service/:recordId" component={ServiceFormPage} />
+          <Route path="/vehicles/:id/fuel/new" component={FuelFormPage} />
+          <Route path="/vehicles/:id/fuel/:fillUpId" component={FuelFormPage} />
+          <Route path="/vehicles/:id/fuel">
+            <VehiclePage tab="fuel" />
+          </Route>
           <Route path="/vehicles/:id/service">
             <VehiclePage tab="service" />
           </Route>
