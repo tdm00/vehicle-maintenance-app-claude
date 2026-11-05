@@ -7,6 +7,7 @@ on:
       - "**.md"
       - "docs/**"
       - ".github/**"
+      - "tests/**"
 
 # Runs one at a time, so two quick merges can't both claim the same version.
 concurrency:
@@ -17,11 +18,13 @@ permissions:
   contents: read
 
 jobs:
-  release:
+  # Installing dependencies and running tests executes third-party code, so this job gets no write
+  # access. The build is versioned and then tested, so the tested bytes are the released bytes.
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    permissions:
-      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -33,19 +36,39 @@ jobs:
         id: version
         run: scripts/next-version.sh >> "$GITHUB_OUTPUT"
 
-      # The build is versioned and then tested, so the tested bytes are the released bytes.
       - uses: ./.github/actions/verify
         if: steps.version.outputs.version != ''
         with:
           version: ${{ steps.version.outputs.version }}
 
-      - name: Publish release
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: steps.version.outputs.version != ''
+        with:
+          name: garage
+          path: dist/garage.html
+          if-no-files-found: error
+          retention-days: 1
+
+  # Runs no project code: it only publishes the file the build job tested.
+  publish:
+    needs: build
+    if: needs.build.outputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: garage
+
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: >
-          gh release create "$VERSION" dist/garage.html
+          gh release create "$VERSION" garage.html
+          --repo "$GITHUB_REPOSITORY"
           --target "$GITHUB_SHA"
           --title "$VERSION"
           --generate-notes

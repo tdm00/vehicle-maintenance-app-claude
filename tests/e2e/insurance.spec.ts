@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { addVehicle, openApp } from './helpers';
 
@@ -43,33 +44,11 @@ test('a shared policy, its reminder, and renewal survive a reload', async ({ pag
 
 test('a save from the first release upgrades in the browser', async ({ page }, info) => {
   await openApp(page, info);
-  const saved = await page.evaluate(() => {
-    const vehicle = {
-      id: 'old',
-      description: 'From v1',
-      make: 'Honda',
-      model: 'Civic',
-      year: 2018,
-      color: '#2563eb',
-      bodyType: 'sedan',
-      powertrain: 'gas',
-      enteredOdometer: 40000,
-      ignoredServiceTypeIds: [],
-    };
-    return JSON.stringify({
-      schemaVersion: 1,
-      data: {
-        vehicles: [vehicle],
-        serviceRecords: [],
-        fuelFillUps: [],
-        serviceTypes: [],
-        settings: { lastBackupAt: null },
-      },
-    });
-  });
+  const saved = readFileSync('tests/fixtures/v1-save.json', 'utf8');
   await page.evaluate((text) => localStorage.setItem('garage.data', text), saved);
   await page.reload();
-  await expect(page.getByRole('link', { name: /From v1/ }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: /Family SUV/ }).first()).toBeVisible();
+  await expect(page.getByText('68,400 mi')).toBeVisible();
   await page.goto(`${page.url().split('#')[0]}#/insurance`);
   await expect(page.getByText('No insurance on file')).toBeVisible();
 });

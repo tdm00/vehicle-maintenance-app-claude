@@ -30,6 +30,16 @@ export default defineConfig({
       metadata: { appUrl: fileUrl },
     },
     {
+      name: 'webkit-file',
+      use: { ...devices['Desktop Safari'] },
+      metadata: { appUrl: fileUrl },
+    },
+    {
+      name: 'chromium-far-timezone',
+      use: { ...devices['Desktop Chrome'], timezoneId: 'Pacific/Kiritimati' },
+      metadata: { appUrl: httpUrl },
+    },
+    {
       name: 'chromium-http',
       use: { ...devices['Desktop Chrome'] },
       metadata: { appUrl: httpUrl },

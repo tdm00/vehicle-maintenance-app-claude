@@ -28,6 +28,36 @@ test('backup and restore round trip', async ({ page }, info) => {
   await expect(page.getByRole('link', { name: /Backed up/ }).first()).toBeVisible();
 });
 
+test('dialogs and the recovery screen are accessible', async ({ page }, info) => {
+  const serious = async () => {
+    const { violations } = await new AxeBuilder({ page }).analyze();
+    return violations
+      .filter((v) => v.impact === 'serious' || v.impact === 'critical')
+      .map((v) => v.id);
+  };
+
+  await openApp(page, info);
+  await page.getByRole('button', { name: 'Load sample data' }).click();
+  await page
+    .getByRole('link', { name: /Family SUV/ })
+    .last()
+    .click();
+  // By keyboard: Safari doesn't focus a button on click, so only this path has focus to return.
+  await page.getByRole('button', { name: 'Delete' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  expect(await serious()).toEqual([]);
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Delete' })).toBeFocused();
+
+  await page.evaluate(() => localStorage.setItem('garage.data', '{damaged'));
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Download my data' })).toBeVisible();
+  expect(await serious()).toEqual([]);
+});
+
 test('damaged data is preserved and recoverable', async ({ page }, info) => {
   await openApp(page, info);
   await page.evaluate(() => localStorage.setItem('garage.data', '{damaged'));
