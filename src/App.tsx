@@ -1,26 +1,30 @@
-import { useState } from 'react';
-
-const KEY = 'garage.skeleton';
+import { useEffect } from 'react';
+import { Route, Router, Switch } from 'wouter';
+import { useHashLocation } from 'wouter/use-hash-location';
+import { Layout } from './components/Layout';
+import { GaragePage } from './pages/GaragePage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { VehicleFormPage } from './pages/VehicleFormPage';
+import { VehiclePage } from './pages/VehiclePage';
+import { syncAcrossTabs } from './store/garageStore';
 
 export function App() {
-  const [count, setCount] = useState(() => Number(localStorage.getItem(KEY) ?? 0));
-
-  function increment() {
-    const next = count + 1;
-    localStorage.setItem(KEY, String(next));
-    setCount(next);
-  }
+  useEffect(() => syncAcrossTabs(), []);
 
   return (
-    <main className="mx-auto max-w-md p-6">
-      <h1 className="text-2xl font-bold">Garage</h1>
-      <button
-        type="button"
-        className="mt-4 rounded bg-slate-900 px-4 py-2 text-white"
-        onClick={increment}
-      >
-        Count: {count}
-      </button>
-    </main>
+    // Hash routes are the only kind that work when the file is opened directly.
+    <Router hook={useHashLocation}>
+      <Layout>
+        <Switch>
+          <Route path="/" component={GaragePage} />
+          <Route path="/vehicles/new" component={VehicleFormPage} />
+          <Route path="/vehicles/:id/edit" component={VehicleFormPage} />
+          <Route path="/vehicles/:id" component={VehiclePage} />
+          <Route path="/settings" component={SettingsPage} />
+          <Route component={NotFoundPage} />
+        </Switch>
+      </Layout>
+    </Router>
   );
 }
